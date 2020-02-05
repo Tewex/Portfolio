@@ -1,8 +1,8 @@
 <?php
 
 /**
- * La classe cMedia contient les informations complémentaire à une photo
- *  Ex: Nom d'article, prix, description, etc.
+ * La classe Media contient les informations complémentaire à une photo
+ *  Ex: idMedia, nomFichierMedia, typeMedia
  */
 class Media{
 
@@ -15,13 +15,13 @@ class Media{
         $this->typeMedia = $InTypeMedia;
 
     }
-    /** @var [int] Id unique de la photo */
+    /** @var [int] Id unique du media */
     public $idMedia;
 
-    /** @var [string] Emplacement du fichier (photo) */
+    /** @var [string] nom du media */
     public $nomFichierMedia;
 
-    /** @var [string] Latitude de la photo */
+    /** @var [string] type de media */
     public $typeMedia;
 
 }

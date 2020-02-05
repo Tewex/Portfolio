@@ -1,3 +1,5 @@
 <?php
-require_once("");
+require_once("php/models/media.php");
+require_once("php/objContainer/cMedia.php");
+require_once("php/objContainer/cPost.php");
 ?>

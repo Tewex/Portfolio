@@ -5,8 +5,8 @@
     <div class="uk-navbar-left nav-overlay">
       <div class="uk-navbar-flip">
         <ul class="uk-navbar-nav uk-visible@s">
-          <li class="uk-active"><a href="index.php">HOME</a></li>
-          <li><a href="post.php">POST &nbsp;<i class="far fa-plus-square"></i> </a></li>
+          <li><a href="index.php"><i class="fas fa-home"></i>&nbsp;HOME</a></li>
+          <li><a href="post.php"><i class="far fa-plus-square"></i>&nbsp;POST </a></li>
           <li><a href="#">Item 3</a></li>
           <li><a href="#">Item 4</a></li>
           <li><a href="#">Item 5</a></li>

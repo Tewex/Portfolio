@@ -1,8 +1,8 @@
 <?php
 
 /**
- * La classe cMedia contient les informations complémentaire à une photo
- *  Ex: Nom d'article, prix, description, etc.
+ * La classe Post contient les informations complémentaire à un post
+ *  Ex: idPost, commentaire, creationDate, modificationDate.
  */
 class Post{
 
@@ -15,16 +15,16 @@ class Post{
         $this->creationDate = $InCreationDate;
         $this->modificationDate = $InModificationDate;
     }
-    /** @var [int] Id unique de la photo */
+    /** @var [int] Id unique de la post */
     public $idPost;
 
-    /** @var [string] Emplacement du fichier (photo) */
+    /** @var [string] Commentaire du post */
     public $commentaire;
 
-    /** @var [string] Latitude de la photo */
+    /** @var [string] Date de création du post */
     public $creationDate;
     
-    /** @var [string] Latitude de la photo */
+    /** @var [string] Date de modification du post */
     public $modificationDate;
 }
 
