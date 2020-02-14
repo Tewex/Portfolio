@@ -1,16 +1,75 @@
 <?php
 require_once("inc.all.php");
-if (isset($_FILES["fileToUpload"]["name"])) {
+
+$SIZEMAX = 3000000;
+
+$btnPost = filter_input(INPUT_POST, "btnPost");
+if ($btnPost) {
+
+    $checkSizeMedia = false;
+    $checkFormatMedia = false;
+    
 
     $target_dir = "./img/photoUploads/";
+    $uploadOk = true;
+    $nbFiles = count($_FILES['fileToUpload']['name']);
+    $description = filter_input(INPUT_POST, "tbxdescription", FILTER_SANITIZE_STRING);
+
+    if ($description == "") {
+        $uploadOk = false;
+        # code...
+    }
+
+    if ($nbFiles == 0) {
+        $uploadOk = false;
+        # code...
+    }
+
+    if ($uploadOk) {
+      
+        for ($i=0; $i < $nbFiles; $i++) { 
+
+            //$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);   
+
+            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);  
+
+            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+            $target_file = $target_dir . changeMediaName($i) . "." . $imageFileType;
+
+            if (checkMediaSize($SIZEMAX, $i)) {
+                $uploadOk = false;
+            }
+
+            if (checkMediaFormat($imageFileType)) {
+                $uploadOk = false;
+            }
+
+            if (checkMediaFake($i)) {
+                $uploadOk = false;
+            }
+            if ($uploadOk) {
+                if (moveMediaToFolder($target_file,$i)) {
+                    echo "yes";
+                }
+            }
+        }
+    }
+}
+/*
+if (isset($_FILES["fileToUpload"]["name"])) {
+    if (isset($_POST["submit"])) {
+    }
+
 
     $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][0]);
     $uploadOk = 1;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-    
+
+    if (isset($_POST["submit"])) {
+    }
 
 
-    
     // Check if $uploadOk is set to 0 by an error
     if ($uploadOk == 0) {
         echo "Sorry, your file was not uploaded.";
@@ -25,7 +84,7 @@ if (isset($_FILES["fileToUpload"]["name"])) {
         }
     }
     $_FILES["fileToUpload"] = [];
-}
+}*/
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -53,14 +112,14 @@ if (isset($_FILES["fileToUpload"]["name"])) {
                 <legend class="uk-legend">Ajouter votre media</legend>
 
                 <div class="uk-margin">
-                    <textarea class="uk-textarea" style="resize: none;" rows="5" placeholder="Commentaire    "></textarea>
+                    <textarea name="tbxdescription" class="uk-textarea" style="resize: none;" rows="5" placeholder="Description"></textarea>
                 </div>
 
 
                 <div class="uk-margin" uk-margin>
 
                     <div uk-form-custom>
-                        <input type="file" name="fileToUpload[]" id="fileToUpload" multiple accept="image/x-png, image/gif, image/jpeg">
+                        <input type="file" name="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
                         <i class="far fa-images"></i>
                     </div>
                     <!--<div uk-form-custom>
@@ -71,7 +130,7 @@ if (isset($_FILES["fileToUpload"]["name"])) {
                         <input type="file" name="fileToUpload" id="fileToUpload" multiple accept="image/x-png, image/gif, image/jpeg">
                         <i class="fas fa-microphone"></i>
                     </div>-->
-                    <button id="submit" class="uk-button uk-button-default">Publier</button>
+                    <button name="btnPost" value="Envoyez" class="uk-button uk-button-default">Publier</button>
                 </div>
 
             </fieldset>
