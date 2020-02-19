@@ -16,20 +16,16 @@ require_once 'databaseConnection.php';
  * @param [Media] $u L'objet photo
  * @return bool true si ok, false si problème
  */
-function Addmedia($p)
+function Addmedia($media,$idPost)
 {
     $database = UserDbConnection();
-    $query = $database->prepare("INSERT INTO photos (location, latitude, longitude, altitude, tempsExposition, sensibiliteISO, distanceFocale, focale, dimension) VALUES (:location, :latitude, :longitude, :altitude, :tempsExposition, :sensibiliteISO, :distanceFocale, :focale, :dimension);");
+    $query = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost);");
     if ($query->execute(array(
-        ':location' => $p->location,
-        ':latitude' => $p->latitude,
-        ':longitude' => $p->longitude,
-        ':altitude' => $p->altitude,
-        ':tempsExposition' => $p->tempsExposition,
-        ':sensibiliteISO' => $p->sensibiliteISO,
-        ':distanceFocale' => $p->distanceFocale,
-        ':focale' => $p->focale,
-        ':dimension' => $p->dimension,
+        ':nomFichierMedia' => $media->nomFichierMedia,
+        ':typeMedia' => $media->typeMedia,
+        ':creationDate' => $media->creationDate,
+        ':modificationDate' => $media->modificationDate,
+        ':idPost' => $idPost
     ))) {
         return true;
     } else {
@@ -44,7 +40,7 @@ function Addmedia($p)
  * @param [int] $id id de la photo
  * @return Photo Rend une liste de Photo, NULL si problème
  */
-function getMediaById($id)
+/*function getMediaById($id)
 {
     $arrPhotos = array();
 
@@ -67,7 +63,7 @@ function getMediaById($id)
         return NULL;
     }
 }
-
+*/
 /**
  * 
  * @return Bool Retourne True si le media a été validé sinon false

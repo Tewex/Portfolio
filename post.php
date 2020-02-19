@@ -2,7 +2,7 @@
 require_once("inc.all.php");
 
 $SIZEMAX = 3000000;
-
+$arrMedias;
 $btnPost = filter_input(INPUT_POST, "btnPost");
 if ($btnPost) {
 
@@ -13,9 +13,9 @@ if ($btnPost) {
     $target_dir = "./img/photoUploads/";
     $uploadOk = true;
     $nbFiles = count($_FILES['fileToUpload']['name']);
-    $description = filter_input(INPUT_POST, "tbxdescription", FILTER_SANITIZE_STRING);
+    $commentaire = filter_input(INPUT_POST, "tbxdescription", FILTER_SANITIZE_STRING);
 
-    if ($description == "") {
+    if ($commentaire == "") {
         $uploadOk = false;
         # code...
     }
@@ -26,11 +26,9 @@ if ($btnPost) {
     }
 
     if ($uploadOk) {
-      
+        
         for ($i=0; $i < $nbFiles; $i++) { 
-
-            //$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);   
-
+            
             $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);  
 
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
@@ -50,41 +48,18 @@ if ($btnPost) {
             }
             if ($uploadOk) {
                 if (moveMediaToFolder($target_file,$i)) {
-                    echo "yes";
+                    $monMedia = new cMedia(-1,$_FILES["fileToUpload"]["name"][$i],$imageFileType,date("Y-m-d H:i:s"),date("Y-m-d H:i:s"));
+                    $arrMedias[] = $monMedia;
                 }
             }
+            $uploadOk = true;
         }
+        $monPost = new cPost(-1,$arrMedias,$commentaire,date("Y-m-d H:i:s"),date("Y-m-d H:i:s"));
+        addPost($monPost);
     }
+    
 }
-/*
-if (isset($_FILES["fileToUpload"]["name"])) {
-    if (isset($_POST["submit"])) {
-    }
 
-
-    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][0]);
-    $uploadOk = 1;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-    if (isset($_POST["submit"])) {
-    }
-
-
-    // Check if $uploadOk is set to 0 by an error
-    if ($uploadOk == 0) {
-        echo "Sorry, your file was not uploaded.";
-        // if everything is ok, try to upload file
-    } else {
-        if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"][0], $target_file)) {
-            AddMedia($maPhoto);
-            echo "The file " . basename($_FILES["fileToUpload"]["name"][0]) . " has been uploaded.";
-        } else {
-            move_uploaded_file($_FILES["fileToUpload"]["tmp_name"][0], $target_file);
-            echo "Sorry, there was an error uploading your file.";
-        }
-    }
-    $_FILES["fileToUpload"] = [];
-}*/
 ?>
 <!DOCTYPE html>
 <html lang="fr">

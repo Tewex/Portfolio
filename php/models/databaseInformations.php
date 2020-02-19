@@ -7,7 +7,7 @@
      * Version: 1.0
      */
     const SERVER = '127.0.0.1';
-    const PSEUDO = 'userdb_photo';
+    const PSEUDO = 'userdb_Portfolio';
 	const PWD = 'Super1234';
-    const DATABASE_NAME = 'projetphoto';
+    const DATABASE_NAME = 'portfolio';
 ?>

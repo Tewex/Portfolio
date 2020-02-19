@@ -4,7 +4,7 @@
  * La classe Post contient les informations complémentaire à un post
  *  Ex: idPost, commentaire, creationDate, modificationDate.
  */
-class Post{
+class cPost{
 
      /**
      * @brief   Class Constructor avec paramètres par défaut pour construire l'objet

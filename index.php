@@ -18,7 +18,7 @@
 <body>
     <?php include_once("nav.php") ?>
     <div class="uk-flex">
-        <div class="uk-width-1-2 uk-card uk-card-default uk-card-body uk-card-small uk-card-title"> Bonjour, bienvenu sur le site <img class="uk-border-circle" width="40" height="40" src="img/profile/feuille.png"></div>
+        <div class="uk-width-1-2 uk-card uk-card-default uk-card-body uk-card-small uk-card-title"> Bonjour, bienven sur le site <img class="uk-border-circle" width="40" height="40" src="img/profile/feuille.png"></div>
         <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 3<br>...<br>...</div>
         <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 2</div>
         <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 3</div>
