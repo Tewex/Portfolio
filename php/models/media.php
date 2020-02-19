@@ -13,7 +13,7 @@ require_once 'databaseConnection.php';
 /**
  * Fonction permettant d'ajouter une photo à la base de donnée (PRIVATEMAIL, TEL)
  *
- * @param [Photo] $u L'objet photo
+ * @param [Media] $u L'objet photo
  * @return bool true si ok, false si problème
  */
 function Addmedia($p)
@@ -58,7 +58,7 @@ function getMediaById($id)
         $row = $query->fetchAll(PDO::FETCH_ASSOC);
         for ($i = 0; $i < count($row); $i++) {
 
-            $photo = new Photo($row[$i]['idPhoto'], $row[$i]['location'], $row[$i]['latitude'], $row[$i]['longitude'], $row[$i]['altitude'], $row[$i]['tempsExposition'], $row[$i]['sensibiliteISO'], $row[$i]['distanceFocale'], $row[$i]['focale'], $row[$i]['dimension']);
+            $photo = new Media($row[$i]['idPhoto'], $row[$i]['location'], $row[$i]['latitude'], $row[$i]['longitude'], $row[$i]['altitude'], $row[$i]['tempsExposition'], $row[$i]['sensibiliteISO'], $row[$i]['distanceFocale'], $row[$i]['focale'], $row[$i]['dimension']);
             //$photo->id = $row['idPhoto'];
             array_push($arrPhotos, $photo);
         }
@@ -72,11 +72,11 @@ function getMediaById($id)
  * 
  * @return Bool Retourne True si le media a été validé sinon false
  */
-function checkMediaSize()
+function checkMediaSize($max,$i)
 {
     // Check size of one image
-    if ($_FILES["fileToUpload"]["size"][0] <= 3000000) {
-        echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+    if ($_FILES["fileToUpload"]["size"][$i] <= $max) {
+
         return false;
     }
     return true;
@@ -86,63 +86,54 @@ function checkMediaSize()
  * 
  * @return Bool Retourne True si le nom du media a été validé sinon false
  */
-function checkMediaName($target_file)
+function changeMediaName($i)
 {
 
-    if (file_exists($target_file)) {
-        echo "Sorry, file already exists.";
-        return false;
-    }
-    return true;
+    return date('YmdHis') . $i;
+    //return $i;
 }
-
 /**
  * 
  * @return Bool Retourne True si le nom du media a été validé sinon false
  */
 function checkMediaFormat($imageFileType)
 {
-
-    // Allow certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") 
+    $extensions = array('.png', '.gif', '.jpg', '.jpeg'); 
+    if(!in_array($imageFileType, $extensions)) 
     {
-        echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+        
         return false;
     }
+    /*
+    // Allow certain file formats
+    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
+
+        return false;
+    }*/
     return true;
 }
 
+
+
 /**
  * 
  * @return Bool Retourne True si le nom du media a été validé sinon false
  */
-function checkImageFake($imageFileType)
+function moveMediaToFolder($target_file,$i)
 {
-
-   
-   if (isset($_POST["submit"])) {
-    $check = getimagesize($_FILES["fileToUpload"]["tmp_name"][0]);
-    if ($check !== false) {
+    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"][$i], $target_file)) {
         return true;
     } else {
         return false;
     }
 }
 
-/**
- * 
- * @return Bool Retourne True si le nom du media a été validé sinon false
- */
-function moveMedia($imageFileType)
+function checkMediaFake($i)
 {
-
-   
-   if (isset($_POST["submit"])) {
-    $check = getimagesize($_FILES["fileToUpload"]["tmp_name"][0]);
+    $check = getimagesize($_FILES["fileToUpload"]["tmp_name"][$i]);
     if ($check !== false) {
-        return true;
-    } else {
         return false;
-    }
+    } else {
+        return true;
     }
 }
