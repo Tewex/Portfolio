@@ -8,7 +8,7 @@ if ($btnPost) {
 
     $checkSizeMedia = false;
     $checkFormatMedia = false;
-
+    
 
     $target_dir = "./img/photoUploads/";
     $uploadOk = true;
@@ -26,10 +26,10 @@ if ($btnPost) {
     }
 
     if ($uploadOk) {
-
-        for ($i = 0; $i <= $nbFiles; $i++) {
-
-            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);
+        
+        for ($i=0; $i <= $nbFiles; $i++) { 
+            
+            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);  
 
             $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -47,18 +47,20 @@ if ($btnPost) {
                 $uploadOk = false;
             }
             if ($uploadOk) {
-                if (moveMediaToFolder($target_file, $i)) {
-                    $monMedia = new cMedia(-1, $_FILES["fileToUpload"]["name"][$i], $imageFileType, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
+                if (moveMediaToFolder($target_file,$i)) {
+                    $monMedia = new cMedia(-1,$_FILES["fileToUpload"]["name"][$i],$imageFileType,date("Y-m-d H:i:s"),date("Y-m-d H:i:s"));
                     $arrMedias[] = $monMedia;
                     if ($i == $nbFiles) {
-                        $monPost = new cPost(-1, $arrMedias, $commentaire, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
-                        addPost($monPost);
+                        # code...
                     }
                 }
             }
             $uploadOk = true;
         }
+        $monPost = new cPost(-1,$arrMedias,$commentaire,date("Y-m-d H:i:s"),date("Y-m-d H:i:s"));
+        addPost($monPost);
     }
+    
 }
 
 ?>
