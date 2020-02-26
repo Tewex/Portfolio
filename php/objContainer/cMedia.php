@@ -9,12 +9,13 @@ class cMedia{
      /**
      * @brief   Class Constructor avec paramètres par défaut pour construire l'objet
      */
-    public function __construct($InidMedia = -1, $InNomFichierMediaionPhoto = "", $InTypeMedia = "", $InCreationDate = "", $InModificationDate = ""){
+    public function __construct($InidMedia = -1, $InNomFichierMediaionPhoto = "", $InTypeMedia = "", $InCreationDate = "", $InModificationDate = "", $InIdPost = ""){
         $this->idMedia = $InidMedia;
         $this->nomFichierMedia = $InNomFichierMediaionPhoto;
         $this->typeMedia = $InTypeMedia;
         $this->creationDate = $InCreationDate;
         $this->modificationDate = $InModificationDate;
+        $this->idPost = $InIdPost;
     }
     /** @var [int] Id unique du media */
     public $idMedia;
@@ -30,6 +31,9 @@ class cMedia{
     
     /** @var [string] Date de modification du media */
     public $modificationDate;
+
+    /** @var [string] idPost du media */
+    public $idPost;
 }
 
 ?>

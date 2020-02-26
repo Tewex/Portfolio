@@ -18,14 +18,15 @@ require_once 'databaseConnection.php';
  */
 function Addmedia($media,$idPost)
 {
+    //Exemple go https://www.php.net/manual/fr/pdo.commit.php
     $database = UserDbConnection();
-    $query = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost);");
+    $query = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost_media) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost_media);");
     if ($query->execute(array(
         ':nomFichierMedia' => $media->nomFichierMedia,
         ':typeMedia' => $media->typeMedia,
         ':creationDate' => $media->creationDate,
         ':modificationDate' => $media->modificationDate,
-        ':idPost' => $idPost
+        ':idPost_media' => $idPost
     ))) {
         return true;
     } else {
@@ -40,7 +41,7 @@ function Addmedia($media,$idPost)
  * @param [int] $id id de la photo
  * @return Photo Rend une liste de Photo, NULL si problème
  */
-/*function getMediaById($id)
+/*function getMediaByIdPost($id)
 {
     $arrPhotos = array();
 
@@ -68,10 +69,10 @@ function Addmedia($media,$idPost)
  * 
  * @return Bool Retourne True si le media a été validé sinon false
  */
-function checkMediaSize($max,$i)
+function checkMediaSize($size, $max,$i)
 {
     // Check size of one image
-    if ($_FILES["fileToUpload"]["size"][$i] <= $max) {
+    if ($size <= $max && $size != 0) {
 
         return false;
     }
@@ -82,11 +83,11 @@ function checkMediaSize($max,$i)
  * 
  * @return Bool Retourne True si le nom du media a été validé sinon false
  */
-function changeMediaName($i)
+function changeMediaName()
 {
 
-    return date('YmdHis') . $i;
-    //return $i;
+    return uniqid() ."-". date('YmdHis') ;
+    //return $i; 
 }
 /**
  * 
@@ -126,6 +127,7 @@ function moveMediaToFolder($target_file,$i)
 
 function checkMediaFake($i)
 {
+    
     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"][$i]);
     if ($check !== false) {
         return false;
