@@ -20,14 +20,13 @@ function Addmedia($media,$idPost)
 {
     //Exemple go https://www.php.net/manual/fr/pdo.commit.php
     $database = UserDbConnection();
-    $query = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost_media) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost_media);");
-    if ($query->execute(array(
-        ':nomFichierMedia' => $media->nomFichierMedia,
-        ':typeMedia' => $media->typeMedia,
-        ':creationDate' => $media->creationDate,
-        ':modificationDate' => $media->modificationDate,
-        ':idPost_media' => $idPost
-    ))) {
+    $req = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost_media) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost_media);");
+    $req->bindParam(":nomFichierMedia",$media->nomFichierMedia, PDO::PARAM_STR);
+    $req->bindParam(":typeMedia",$media->typeMedia, PDO::PARAM_STR);
+    $req->bindParam(":creationDate",$media->creationDate, PDO::PARAM_STR);
+    $req->bindParam(":modificationDate",$media->modificationDate, PDO::PARAM_STR);
+    $req->bindParam(":idPost_media",$idPost, PDO::PARAM_STR);
+    if ($req->execute()) {
         return true;
     } else {
         return false;

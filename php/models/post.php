@@ -5,11 +5,10 @@ function addPost($post)
 {
   $sql = "INSERT INTO post(commentaire, creationDate, modificationDate) VALUES(:commentaire, :creationDate, :modificationDate)";
   $req = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
-  if ($req->execute(array(
-    'commentaire' => $post->commentaire,
-    'creationDate' => $post->creationDate,
-    'modificationDate' => $post->modificationDate
-  ))) {
+  $req->bindParam(":commentaire",$post->commentaire, PDO::PARAM_STR);
+  $req->bindParam(":creationDate",$post->creationDate, PDO::PARAM_STR);
+  $req->bindParam(":modificationDate",$post->modificationDate, PDO::PARAM_STR);
+  if ($req->execute()) {
     $idPost = UserDbConnection()->lastInsertId();
     foreach ($post->media as $monMedia) {
       if (Addmedia($monMedia, $idPost)) {

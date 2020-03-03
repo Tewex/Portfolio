@@ -27,7 +27,7 @@ $say = "hello";
     </div>
     <div class="uk-flex">
         <div class="uk-card uk-card-default uk-card-body uk-margin-left">
-            <img class="fit-picture" src="<?php echo "/img/photoUploads/" . $arrPost[0]->media[0]->nomFichierMedia ?>" alt="">
+            <img class="fit-picture" src="<?php echo CHEMINPHOTO. $arrPost[0]->media[0]->nomFichierMedia ?>" alt="">
             <br>
             <hr class="uk-divider-icon">
                     <?php echo  $arrPost[0]->commentaire ?>
