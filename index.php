@@ -15,33 +15,19 @@ $say = "hello";
     <link rel="stylesheet" href="css/uikit.css">
     <link rel="stylesheet" href="css/sticky.css">
     <link rel="stylesheet" href="css/cssNavBar.css">
+    <link rel="stylesheet" href="css/style.css">
     <script src="js/uikit.js"></script>
     <script src="js/uikit-icons.js"></script>
+    <script src="https://kit.fontawesome.com/03529e1b19.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
     <?php include_once("nav.php") ?>
-    <div class="uk-flex">
-        <div class="uk-width-1-2 uk-card uk-card-default uk-card-body uk-card-small uk-card-title"> Bonjour, bienven sur le site <img class="uk-border-circle" width="40" height="40" src="img/profile/feuille.png"></div>
-
-    </div>
-    <div class="uk-flex">
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">
-            <img class="fit-picture" src="<?php echo CHEMINPHOTO. $arrPost[0]->media[0]->nomFichierMedia ?>" alt="">
-            <br>
-            <hr class="uk-divider-icon">
-                    <?php echo  $arrPost[0]->commentaire ?>
-
-        </div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 2</div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 3<br>...<br>...</div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 2</div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 3</div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 3<br>...<br>...</div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-left">Item 2</div>
-
-    </div>
+    <div class="content">
+            <?php
+                echo getHtmlForAllPost($arrPost);
+            ?>
 </body>
-<script src="https://kit.fontawesome.com/03529e1b19.js" crossorigin="anonymous"></script>
+
 
 </html>

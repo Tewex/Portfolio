@@ -7,14 +7,8 @@
         <ul class="uk-navbar-nav uk-visible@s">
           <li><a href="index.php"><i class="fas fa-home"></i>&nbsp;HOME</a></li>
           <li><a href="post.php"><i class="far fa-plus-square"></i>&nbsp;POST </a></li>
-          <li><a href="#">Item 3</a></li>
-          <li><a href="#">Item 4</a></li>
-          <li><a href="#">Item 5</a></li>
-          <li><a href="#">Item 6</a></li>
-
         </ul>
         <ul class="uk-navbar-nav uk-hidden@s">
-
           <li><a class="uk-navbar-toggle" uk-navbar-toggle-icon uk-toggle="target: #mobile-navbar"></a></li>
         </ul>
       </div>
@@ -36,7 +30,7 @@
       <ul class="uk-nav-default uk-nav-parent-icon" uk-nav>
         <!-- logo or title-->
         <li class="uk-text-center" style="padding: 0 0 25px 0;"><a href="#">
-            <!--h3 Site Name--><img src="http://blog.codepen.io/wp-content/uploads/2012/06/Button-Fill-White-Large.png" alt="logo" width="64"></a></li>
+            <!--h3 Site Name--><img src="img/profile/feuille.png" alt="logo" width="64"></a></li>
         <!-- end logo or title-->
         <!-- menu-->
         <li>
@@ -45,22 +39,10 @@
         <li class="uk-text-center">
           <h3>Menu</h3>
         </li>
-        <li class="uk-active"><a href="index.php">HOME
+        <li><a href="index.php"><i class="fas fa-home"></i>&nbsp;HOME
             <!--span.uk-light(uk-icon="icon: pencil")-->
             <!--| #{" "}Item 1--></a></li>
-        <li><a href="post.php">POST
-            <!--span.uk-light(uk-icon="icon: code")-->
-            <!--| #{" "}Item #{i}#{j}--></a></li>
-        <li><a href="#">Item 3
-            <!--span.uk-light(uk-icon="icon: code")-->
-            <!--| #{" "}Item #{i}#{j}--></a></li>
-        <li><a href="#">Item 4
-            <!--span.uk-light(uk-icon="icon: code")-->
-            <!--| #{" "}Item #{i}#{j}--></a></li>
-        <li><a href="#">Item 5
-            <!--span.uk-light(uk-icon="icon: code")-->
-            <!--| #{" "}Item #{i}#{j}--></a></li>
-        <li><a href="#">Item 6
+        <li><a href="post.php"><i class="far fa-plus-square"></i>&nbsp;POST
             <!--span.uk-light(uk-icon="icon: code")-->
             <!--| #{" "}Item #{i}#{j}--></a></li>
       </ul>

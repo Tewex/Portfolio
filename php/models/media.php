@@ -109,7 +109,11 @@ function checkMediaFormat($imageFileType)
     return true;
 }
 
-
+function getFormatMedia($type)
+{
+    return substr($type, 0, strpos($type, "/"));
+    
+}
 
 /**
  * 
@@ -132,5 +136,36 @@ function checkMediaFake($i)
         return false;
     } else {
         return true;
+    }
+}
+
+function getMediaType($monMedia)
+{
+    return "image";
+    $echo  = filetype("photoUploads10122019-DJI_0986");
+    $f = finfo_open("." . CHEMINMEDIA . $monMedia->nomFichierMedia);
+    $finfo_open = "." . CHEMINMEDIA . $monMedia->nomFichierMedia;
+    //$finfo = finfo_open(CHEMINPHOTO . $monMedia->nomFichierMedia); // Retourne le type mime à l'extension mimetype
+    $fileType = mime_content_type($finfo_open);
+   
+    //$fileType = FILEINFO_MIME_TYPE(CHEMINPHOTO . $monMedia->nomFichierMedia);
+    
+    $extensionsImage = array('.png', '.gif', '.jpg', '.jpeg'); 
+    if(strpos($fileType, 'image/')=== true) 
+    {
+        return "image";
+    }
+    elseif (strpos($fileType, 'video/')=== true) {
+        return"video";
+    }
+    elseif (strpos($fileType, 'audio/')=== true) {
+        return"audio";
+    }
+}
+
+function deletefiles($arrMedia)
+{
+    foreach ($arrMedia as $media) {
+        unlink(CHEMINMEDIA . $media->nomFichierMedia);
     }
 }

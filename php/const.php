@@ -1,3 +1,3 @@
 <?php 
-CONST CHEMINPHOTO = "./img/photoUploads/";
+CONST CHEMINMEDIA = "./img/photoUploads/";
 ?>

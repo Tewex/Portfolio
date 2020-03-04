@@ -8,15 +8,35 @@ $showMessageCool = false;
 $arrMedias = [];
 $arrMessagesCool = [];
 $arrMessagesError = [];
-
 $btnPost = filter_input(INPUT_POST, "btnPost");
 if ($btnPost) {
+    $postOnlyComment = false;
     $commentaireOk = true;
     $target_dir = "./img/photoUploads/";
     $uploadOk = true;
-    $nbFiles = count($_FILES['fileToUpload']['name']);
+    $nbFiles = 0;
     $fileError = $_FILES['fileToUpload']['error'][0];
     $commentaire = filter_input(INPUT_POST, "tbxdescription", FILTER_SANITIZE_STRING);
+
+    for ($i = 0; $i < count($_FILES['fileToUpload']['name']); $i++) {
+        if ($_FILES['fileToUpload']['name'][$i] != "" && $_FILES['fileToUpload']['error'][$i] == 0) {
+            $nbFiles++;
+        } else {
+            if ($_FILES['fileToUpload']['error'][$i] == 1) {
+                $uploadOk = false;
+                $commentaireOk = false;
+                $showMessageError = true;
+                $arrMessagesError[] = "La taille de votre media est trop élévé";
+            }
+            else if ($_FILES['fileToUpload']['error'][$i] == 2  ) {
+                $uploadOk = false;
+                $commentaireOk = false;
+                $showMessageError = true;
+                $arrMessagesError[] = "La taille de l'ensemble de vos media est trop élévé";
+            }
+            
+        }
+    }
 
     if ($commentaire == "") {
         $uploadOk = false;
@@ -27,11 +47,12 @@ if ($btnPost) {
 
     if ($nbFiles == 0) {
         $uploadOk = false;
-        $showMessageError = true;
-        $arrMessagesError[] = "Veuillez ajouter une image";
+        $postOnlyComment = true;
+
+        //$arrMessagesError[] = "Veuillez ajouter un message";
     }
 
-    if ($uploadOk && $fileError == 0) {
+    if ($uploadOk) {
 
         for ($i = 0; $i < $nbFiles; $i++) {
             $name = basename($_FILES["fileToUpload"]["name"][$i]);
@@ -40,6 +61,8 @@ if ($btnPost) {
 
             $sizeFile = $_FILES["fileToUpload"]["size"][$i];
 
+            $type = getFormatMedia($_FILES["fileToUpload"]["type"][$i]);
+
             $fileExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
             $target_file = $target_dir . $newName . "." . $fileExtension;
@@ -47,25 +70,37 @@ if ($btnPost) {
             if (checkMediaSize($sizeFile, $SIZEMAX, $i)) {
                 $uploadOk = false;
                 $showMessageError = true;
-                $arrMessagesError[] = "La taille de votre image est trop élévé";
+                $arrMessagesError[] = "La taille de votre media est trop élévé";
             }
-
+            /*
             if (checkMediaFormat($fileExtension)) {
                 $uploadOk = false;
                 $showMessageError = true;
-                $arrMessagesError[] = "Le format de votre image est incompatible";
-            }
-
-            if ( $sizeFile != 0 && checkMediaFake($i)) {
+                $arrMessagesError[] = "Le format de votre media est incompatible";
+            }*/
+            //VOIR TAILLE PAS OUF <!DOCTYPE html>
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            //
+            if ($sizeFile != 0 && checkMediaFake($i)) {
                 $uploadOk = false;
                 $showMessageError = true;
-                $arrMessagesError[] = "Votre image est fausse";
+                $arrMessagesError[] = "Votre media est fausse";
             }
             if ($uploadOk) {
                 if (moveMediaToFolder($target_file, $i)) {
-                    $arrMedias[] = new cMedia(-1, $newName . "." . $fileExtension, $fileExtension, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
-                    $arrMessagesCool[] = "L'image " . $name . " a été Upload";
+                    $arrMedias[] = new cMedia(-1, $newName . "." . $fileExtension, $type, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
+                    $arrMessagesCool[] = "Le'media " . $name . " a été Upload";
                     $showMessageCool = true;
+                    
                 } else {
                     $showMessageError = true;
                     $arrMessagesError[] = "Une erreur est survenu lors du chargement du Media";
@@ -83,10 +118,16 @@ if ($btnPost) {
                 $arrMessagesError[] = "Une erreur est survenu lors de l'ajout de votre post";
             }
         }
-    }
-    elseif ($commentaireOk) {
+    } elseif ($commentaireOk && $postOnlyComment) {
+        $showMessageError = false;
         $monPost = new cPost(-1, $arrMedias, $commentaire, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
-        addPost($monPost);
+        if (addPost($monPost)) {
+            $showMessageCool = true;
+            $arrMessagesCool[] = "Votre post a été ajouté";
+        }
+        else{
+            deleteFiles($arrMedias);
+        }
     }
 }
 
@@ -104,6 +145,7 @@ if ($btnPost) {
     <link rel="stylesheet" href="css/cssNavBar.css">
     <script src="js/uikit.js"></script>
     <script src="js/uikit-icons.js"></script>
+    <script src="https://kit.fontawesome.com/03529e1b19.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -114,11 +156,11 @@ if ($btnPost) {
         if ($showMessageError) { ?>
             <div class="uk-alert-danger" uk-alert>
                 <a class="uk-alert-close" uk-close></a>
-                <?php 
+                <?php
                 foreach ($arrMessagesError as $message) {
-                   echo "<p>".$message."</p>";
+                    echo "<p>" . $message . "</p>";
                 }
-                
+
                 ?>
             </div>
         <?php   }
@@ -127,15 +169,15 @@ if ($btnPost) {
         if ($showMessageCool) { ?>
             <div class="uk-alert-success" uk-alert>
                 <a class="uk-alert-close" uk-close></a>
-                <?php 
+                <?php
                 foreach ($arrMessagesCool as $message) {
-                   echo "<p>".$message."</p>";
+                    echo "<p>" . $message . "</p>";
                 }
-                
+
                 ?>
             </div>
-        <?php  
-         }
+        <?php
+        }
         ?>
 
         <form action="" method="POST" enctype="multipart/form-data">
@@ -154,11 +196,11 @@ if ($btnPost) {
                         <input type="file" name="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
                         <i class="far fa-images"></i>
                     </div>
-                    <!--<div uk-form-custom>
-                        <input type="file" name="fileToUpload" id="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
+                    <div uk-form-custom>
+                        <input type="file" name="fileToUpload[]" multiple accept="video/*">
                         <span class="uk-margin-small-right" uk-icon="video-camera"></span>
                     </div>
-                    <div uk-form-custom>
+                    <!--<div uk-form-custom>
                         <input type="file" name="fileToUpload" id="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
                         <i class="fas fa-microphone"></i>
                     </div>-->
@@ -170,7 +212,7 @@ if ($btnPost) {
     </body>
 </body>
 
-<script src="https://kit.fontawesome.com/03529e1b19.js" crossorigin="anonymous"></script>
+
 
 
 </html>
