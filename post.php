@@ -2,6 +2,7 @@
 require_once("inc.all.php");
 
 $SIZEMAX = 3000000;
+$arrTrueMedia = [];            
 
 $showMessageError = false;
 $showMessageCool = false;
@@ -20,7 +21,7 @@ if ($btnPost) {
 
     for ($i = 0; $i < count($_FILES['fileToUpload']['name']); $i++) {
         if ($_FILES['fileToUpload']['name'][$i] != "" && $_FILES['fileToUpload']['error'][$i] == 0) {
-            $nbFiles++;
+            $arrTrueMedia = [$i];
         } else {
             if ($_FILES['fileToUpload']['error'][$i] == 1) {
                 $uploadOk = false;
@@ -45,7 +46,7 @@ if ($btnPost) {
         $arrMessagesError[] = "Veuillez ajouter un message";
     }
 
-    if ($nbFiles == 0) {
+    if (count($arrTrueMedia) == 0) {
         $uploadOk = false;
         $postOnlyComment = true;
 
@@ -54,18 +55,19 @@ if ($btnPost) {
 
     if ($uploadOk) {
 
-        for ($i = 0; $i < $nbFiles; $i++) {
+        foreach ($arrTrueMedia as $i) {
             $name = basename($_FILES["fileToUpload"]["name"][$i]);
+            $tmpName = $_FILES["fileToUpload"]["tmp_name"][$i];
             $newName = changeMediaName();
             $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);
 
             $sizeFile = $_FILES["fileToUpload"]["size"][$i];
 
-            $type = getFormatMedia($_FILES["fileToUpload"]["type"][$i]);
-
+            //$type = getFormatMedia($_FILES["fileToUpload"]["type"][$i]);
+            $content_type = mime_content_type($_FILES["fileToUpload"]["tmp_name"][$i]);
             $fileExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-            $target_file = $target_dir . $newName . "." . $fileExtension;
+            $target_file = $target_dir . $newNam6e . "." . $fileExtension;
 
             if (checkMediaSize($sizeFile, $SIZEMAX, $i)) {
                 $uploadOk = false;
@@ -90,11 +92,11 @@ if ($btnPost) {
             //
             //
             //
-            if ($sizeFile != 0 && checkMediaFake($i)) {
+            /*if (checkMediaFake($tmpName, $content_type)) {
                 $uploadOk = false;
                 $showMessageError = true;
-                $arrMessagesError[] = "Votre media est fausse";
-            }
+                $arrMessagesError[] = "Votre media est faux";
+            }*/
             if ($uploadOk) {
                 if (moveMediaToFolder($target_file, $i)) {
                     $arrMedias[] = new cMedia(-1, $newName . "." . $fileExtension, $type, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
@@ -126,11 +128,10 @@ if ($btnPost) {
             $arrMessagesCool[] = "Votre post a été ajouté";
         }
         else{
-            deleteFiles($arrMedias);
+            deletefilesServer($arrMedias);
         }
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">

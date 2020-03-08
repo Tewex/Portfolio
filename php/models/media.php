@@ -33,6 +33,25 @@ function Addmedia($media,$idPost)
     }
 }
 
+function deleteMediaById($id,$dbh = "")
+{
+
+    if ($dbh == "") {
+        $dbh = UserDbConnection();
+    }
+    $sql = "DELETE FROM portfolio.media WHERE idMedia = :id";
+    try {
+        $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
+    
+        $stmt->bindParam(":id", $id, PDO::PARAM_STR);
+    
+      
+        $stmt->execute();
+        return true;
+      } catch (Exception $e) {
+        return false;
+      }
+}
 
 /**
  * Fonction permettant de récupérer une photo avec son Id
@@ -40,21 +59,18 @@ function Addmedia($media,$idPost)
  * @param [int] $id id de la photo
  * @return Photo Rend une liste de Photo, NULL si problème
  */
-/*function getMediaByIdPost($id)
+function getMediaByIdPost($id)
 {
     $arrPhotos = array();
 
     $database = UserDbConnection();
-    $query = $database->prepare("SELECT idPhoto,location, latitude, longitude, altitude, tempsExposition, sensibiliteISO, distanceFocale, focale, dimension FROM photos WHERE idPhoto = :id LIMIT 1");
-    if ($query->execute(
-        array(
-            ':id' => $id,
-        )
-    )) {
+    $query = $database->prepare("SELECT idMedia, nomFichierMedia, typeMedia, creationDate, ModificationDate, idPost_Media FROM media WHERE idPost_Media = :id LIMIT 1");
+    $query->bindParam(":id", $id, PDO::PARAM_STR);
+    if ($query->execute()) {
         $row = $query->fetchAll(PDO::FETCH_ASSOC);
         for ($i = 0; $i < count($row); $i++) {
 
-            $photo = new Media($row[$i]['idPhoto'], $row[$i]['location'], $row[$i]['latitude'], $row[$i]['longitude'], $row[$i]['altitude'], $row[$i]['tempsExposition'], $row[$i]['sensibiliteISO'], $row[$i]['distanceFocale'], $row[$i]['focale'], $row[$i]['dimension']);
+            $photo = new cMedia($row[$i]['idMedia'], $row[$i]['nomFichierMedia'], $row[$i]['typeMedia'], $row[$i]['creationDate'], $row[$i]['ModificationDate'], $row[$i]['idPost_Media']);
             //$photo->id = $row['idPhoto'];
             array_push($arrPhotos, $photo);
         }
@@ -63,7 +79,7 @@ function Addmedia($media,$idPost)
         return NULL;
     }
 }
-*/
+
 /**
  * 
  * @return Bool Retourne True si le media a été validé sinon false
@@ -163,7 +179,7 @@ function getMediaType($monMedia)
     }
 }
 
-function deletefiles($arrMedia)
+function deletefilesServer($arrMedia)
 {
     foreach ($arrMedia as $media) {
         unlink(CHEMINMEDIA . $media->nomFichierMedia);

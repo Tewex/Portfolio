@@ -2,7 +2,12 @@
 require_once("inc.all.php");
 
 $arrPost = getAllPost();
-$say = "hello";
+//ACTIVE THIS extension=fileinfo in PHP INI
+//mime_content_type
+
+
+
+ 
 ?>
 <!DOCTYPE html>
 <html lang="fr">

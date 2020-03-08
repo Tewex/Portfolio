@@ -9,7 +9,7 @@ function addPost($post)
     $dbh = UserDbConnection();
     $dbh->beginTransaction();
     $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
-   
+
     $stmt->bindParam(":commentaire", $post->commentaire, PDO::PARAM_STR);
     $stmt->bindParam(":creationDate", $post->creationDate, PDO::PARAM_STR);
     $stmt->bindParam(":modificationDate", $post->modificationDate, PDO::PARAM_STR);
@@ -22,12 +22,10 @@ function addPost($post)
 
     $dbh->commit();
     return true;
-    
   } catch (Exception $e) {
     $dbh->rollBack();
     return false;
   }
-
 }
 
 function getAllPost()
@@ -42,28 +40,24 @@ function getAllPost()
   return $arrPost;
 }
 
-function getAllPostWhitoutMedia()
+function getPostById($id)
 {
   $arrMedias = [];
-  $arrPost = [];
-  $sql = "SELECT p.idPost,p.commentaire,p.creationDate,p.modificationDate FROM POST as p
-  LEFT JOIN MEDIA as m
-  ON p.idPost=m.idPost_media
-  WHERE m.idPost_media is null;";
+  $post = "";
+  $sql = "SELECT idPost, commentaire, creationDate, modificationDate FROM portfolio.post WHERE idPost=:id LIMIT 1";
 
-  $query = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
-  if ($query->execute()) {
-    $row = $query->fetchAll(PDO::FETCH_ASSOC);
-    for ($i = 0; $i < count($row); $i++) {
-      $post = new cPost($row[$i]['idPost'], $arrMedias, $row[$i]['commentaire'], $row[$i]['creationDate'], $row[$i]['modificationDate']);
-      array_push($arrPost, $post);
-    }
-    return $arrPost;
-  } else {
-    return NULL;
+  $dbh = UserDbConnection();
+  $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
+  $stmt->bindParam(":id", $id, PDO::PARAM_STR);
+  if ($stmt->execute()) {
+    $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $post = new cPost($row[0]['idPost'], $arrMedias, $row[0]['commentaire'], $row[0]['creationDate'], $row[0]['modificationDate']);
+
+    $post->media = getMediaByIdPost($id);
+    return $post;
   }
 }
-
 function getAllPostWithMedia()
 {
   $count = 0;
@@ -109,6 +103,54 @@ function getAllPostWithMedia()
   }
 }
 
+function getAllPostWhitoutMedia()
+{
+  $arrMedias = [];
+  $arrPost = [];
+  $sql = "SELECT p.idPost,p.commentaire,p.creationDate,p.modificationDate FROM POST as p
+  LEFT JOIN MEDIA as m
+  ON p.idPost=m.idPost_media
+  WHERE m.idPost_media is null;";
+
+  $query = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
+  if ($query->execute()) {
+    $row = $query->fetchAll(PDO::FETCH_ASSOC);
+    for ($i = 0; $i < count($row); $i++) {
+      $post = new cPost($row[$i]['idPost'], $arrMedias, $row[$i]['commentaire'], $row[$i]['creationDate'], $row[$i]['modificationDate']);
+      array_push($arrPost, $post);
+    }
+    return $arrPost;
+  } else {
+    return NULL;
+  }
+}
+
+function deletePostById($post)
+{
+  $i = 14;
+  $sql="DELETE FROM `portfolio`.`post` WHERE idPost = :idPost";
+  try {
+    $dbh = UserDbConnection();
+    $dbh->beginTransaction();
+    $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
+
+    $stmt->bindParam(":idPost", $post->idPost, PDO::PARAM_STR);
+
+    if ($post->media != "") {
+      foreach ($post->media as $media) {
+        deleteMediaById($media->idMedia,$dbh);
+      }
+      
+    }
+    $stmt->execute();
+    $dbh->commit();
+    return true;
+  } catch (Exception $e) {
+    $dbh->rollBack();
+    return false;
+  }
+}
+
 /*SELECT post.idPost, post.commentaire, post.creationDate, post.modificationDate, GROUP_CONCAT(media.typeMedia) 
 as mediaTypes, GROUP_CONCAT(media.nomFichierMedia) as mediaNames FROM post
             LEFT JOIN media ON media.idPost_media = post.idPost
@@ -150,23 +192,23 @@ function getHtmlForAllPost($arrPost)
       $html .= "<ul class=\"uk-slideshow-items\" tabindex=\"-1\">"; //uk-height-viewport=\"offset-top: true; \"
 
       foreach ($post->media as $monMedia) {
-        
+
         switch ($monMedia->typeMedia) {
           case "image":
             $html .= "<li>";
             $html .= "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . "  uk-cover uk-img alt=\"\">";
             $html .= "</li>";
-          break;
+            break;
           case "video":
             $html .= "<li>";
             $html .= "<video src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " autoplay loop playsinline uk-cover></video>";
             $html .= "</li>";
-          break;
+            break;
           case "audio":
             $html .= "<li>";
             $html .= "<audio src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " ></audio>";
             $html .= "</li>";
-          break;
+            break;
         }
       }
       $html .= "</ul>";
@@ -174,17 +216,19 @@ function getHtmlForAllPost($arrPost)
       $html .= "<a class=\"uk-position-center-right uk-position-small uk-hidden-hover\" href=\"#\" uk-slidenav-next uk-slideshow-item=\"next\"></a>";
       $html .= "</div>";
     }
-      $html .= "<hr class=\"uk-divider-icon\">";
-      $html .= "<article class=\"uk-article\">";
-      $html .= "<p class=\"uk-text-left uk-text-meta\">" . $post->creationDate . "</p>";
-      $html .= "<p class=\"uk-text-lead\">" .  $post->commentaire . "</p>";
-      $html .= "</article>";
-      $html .= "</div>";
-      $html .= "</li>";
+    $html .= "<hr class=\"uk-divider-icon\">";
+    $html .= "<article class=\"uk-article\">";
+    $html .= "<p class=\"uk-text-left uk-text-meta\">" . $post->creationDate . "</p>";
+    $html .= "<p class=\"uk-text-lead\">" .  $post->commentaire . "</p>";
+    $html .= "<a href = editPost.php?id=" . $post->idPost . "><i class=\"fas fa-pen\"></i>&nbsp;&nbsp;</a>";
+    $html .= "<a href = deletePost.php?id=" . $post->idPost . "><i class=\"fas fa-trash-alt\"></i></a>";
+    $html .= "</article>";
+    $html .= "</div>";
+    $html .= "</li>";
   }
-     
-      $html .= "</ul>";
-      $html .= "</div>";
-      $html .= "</div>";
+
+  $html .= "</ul>";
+  $html .= "</div>";
+  $html .= "</div>";
   return $html;
 }
