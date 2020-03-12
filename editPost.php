@@ -26,35 +26,57 @@ $post = getPostById($id);
     <?php include_once("nav.php") ?>
     <div class="content">
         <form action="" method="POST" enctype="multipart/form-data">
-        <fieldset class="uk-fieldset">
+            <fieldset class="uk-fieldset">
 
                 <legend class="uk-legend">Editer votre media</legend>
                 <p clas="uk-text-lead">Commentaire :</p>
                 <div class="uk-margin">
-                    <textarea  name="tbxdescription" class="uk-textarea" style="resize: none;" rows="5" placeholder="Description"><?php echo $post->commentaire?></textarea>
+                    <textarea name="tbxdescription" class="uk-textarea" style="resize: none;" rows="5" placeholder="Description"><?php echo $post->commentaire ?></textarea>
                 </div>
                 <p clas="uk-text-lead">Medias :</p>
-                <?php 
-                    foreach ($post->media as $media) {
-                        
+                <?php
+                foreach ($post->media as $monMedia) {
+                    switch ($monMedia->typeMedia) {
+                        case "image":
+                            echo "<li>";
+                            echo "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " uk-img alt=\"\">";
+                            echo "</li>";
+                            break;
+                        case "video":
+                            echo "<li>";
+                            echo "<video src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " autoplay loop playsinline ></video>";
+                            echo "</li>";
+                            break;
+                        case "audio":
+                            echo "<li>";
+                            echo "<audio controls src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " > </audio>";
+                            echo "</li>";
+                            break;
                     }
+                }
                 ?>
-
+                <div class="uk-margin uk-grid-small uk-child-width-auto uk-grid">
+                    <label><input class="uk-checkbox" type="checkbox" checked> A</label>
+                    <label><input class="uk-checkbox" type="checkbox"> B</label>
+                </div>
+                <p clas="uk-text-lead">Ajouter un/des medias :</p>
                 <div class="uk-margin" uk-margin>
 
                     <div uk-form-custom>
-                        <input type="file" name="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
+                        <input type="file" name="fileToUpload[]" multiple accept="image/*">
                         <i class="far fa-images"></i>
                     </div>
                     <div uk-form-custom>
                         <input type="file" name="fileToUpload[]" multiple accept="video/*">
                         <span class="uk-margin-small-right" uk-icon="video-camera"></span>
                     </div>
-                    <!--<div uk-form-custom>
-                        <input type="file" name="fileToUpload" id="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
+                    <div uk-form-custom>
+                        <input type="file" name="fileToUpload[]" multiple accept="audio/*">
                         <i class="fas fa-microphone"></i>
-                    </div>-->
-                    <button name="btnPost" value="Envoyez" class="uk-button uk-button-default">Publier</button>
+                    </div>
+                    <div>
+                        <button name="btnPost" value="Envoyez" class="uk-button uk-button-default">Publier</button>
+                    </div>
                 </div>
             </fieldset>
         </form>

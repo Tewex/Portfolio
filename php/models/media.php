@@ -64,7 +64,7 @@ function getMediaByIdPost($id)
     $arrPhotos = array();
 
     $database = UserDbConnection();
-    $query = $database->prepare("SELECT idMedia, nomFichierMedia, typeMedia, creationDate, ModificationDate, idPost_Media FROM media WHERE idPost_Media = :id LIMIT 1");
+    $query = $database->prepare("SELECT idMedia, nomFichierMedia, typeMedia, creationDate, ModificationDate, idPost_Media FROM media WHERE idPost_Media = :id");
     $query->bindParam(":id", $id, PDO::PARAM_STR);
     if ($query->execute()) {
         $row = $query->fetchAll(PDO::FETCH_ASSOC);

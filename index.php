@@ -32,6 +32,7 @@ $arrPost = getAllPost();
             <?php
                 echo getHtmlForAllPost($arrPost);
             ?>
+        
 </body>
 
 

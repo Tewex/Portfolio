@@ -28,18 +28,6 @@ function addPost($post)
   }
 }
 
-function getAllPost()
-{
-
-  $arrPostWith = getAllPostWithMedia();
-  $arrPostWhitout = getAllPostWhitoutMedia();
-  $arrPost = array_merge($arrPostWhitout, $arrPostWith);
-
-  usort($arrPost, "orderByDate");
-
-  return $arrPost;
-}
-
 function getPostById($id)
 {
   $arrMedias = [];
@@ -58,14 +46,13 @@ function getPostById($id)
     return $post;
   }
 }
-function getAllPostWithMedia()
+function getAllPost()
 {
-  $count = 0;
 
   $arrPost = [];
-  $sql = "SELECT p.idPost,p.commentaire,p.creationDate,p.modificationDate,m.idMedia,m.nomFichierMedia,m.typeMedia,m.creationDate,m.modificationDate,m.idPost_Media
+  $sql = "SELECT p.idPost,p.commentaire,p.creationDate as createDatePost,p.modificationDate as modifDatePost,m.idMedia,m.nomFichierMedia,m.typeMedia,m.creationDate,m.modificationDate,m.idPost_Media
   FROM post as p
-  INNER JOIN media as m
+  LEFT OUTER JOIN media as m
   ON p.idPost = m.idPost_media";
 
   $query = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
@@ -74,13 +61,13 @@ function getAllPostWithMedia()
     for ($i = 0; $i < count($row); $i++) {
       $dontstop = true;
       $arrMedias = [];
-      $post = new cPost($row[$i]['idPost'], $arrMedias, $row[$i]['commentaire'], $row[$i]['creationDate'], $row[$i]['modificationDate']);
-
-      $arrMedias[] = new cMedia($row[$i]['idMedia'], $row[$i]['nomFichierMedia'], $row[$i]['typeMedia'], $row[$i]['creationDate'], $row[$i]['modificationDate'], $row[$i]['idPost']);
-
+      $post = new cPost($row[$i]['idPost'], $arrMedias, $row[$i]['commentaire'], $row[$i]['createDatePost'], $row[$i]['modifDatePost']);
+      if ($row[$i]['idMedia'] != null) {
+        $arrMedias[] = new cMedia($row[$i]['idMedia'], $row[$i]['nomFichierMedia'], $row[$i]['typeMedia'], $row[$i]['creationDate'], $row[$i]['modificationDate'], $row[$i]['idPost']);
+      }
       $f = $i + 1;
       if ($f < count($row)) {
-        while ($row[$i]['idPost_Media'] == $row[$f]['idPost_Media']  && $dontstop) {
+        while ($row[$i]['idPost_Media'] == $row[$f]['idPost_Media']  && $dontstop && $row[$i]['idMedia'] != null) {
           $i++;
           $f++;
 
@@ -103,27 +90,7 @@ function getAllPostWithMedia()
   }
 }
 
-function getAllPostWhitoutMedia()
-{
-  $arrMedias = [];
-  $arrPost = [];
-  $sql = "SELECT p.idPost,p.commentaire,p.creationDate,p.modificationDate FROM POST as p
-  LEFT JOIN MEDIA as m
-  ON p.idPost=m.idPost_media
-  WHERE m.idPost_media is null;";
 
-  $query = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
-  if ($query->execute()) {
-    $row = $query->fetchAll(PDO::FETCH_ASSOC);
-    for ($i = 0; $i < count($row); $i++) {
-      $post = new cPost($row[$i]['idPost'], $arrMedias, $row[$i]['commentaire'], $row[$i]['creationDate'], $row[$i]['modificationDate']);
-      array_push($arrPost, $post);
-    }
-    return $arrPost;
-  } else {
-    return NULL;
-  }
-}
 
 function deletePostById($post)
 {
@@ -188,7 +155,7 @@ function getHtmlForAllPost($arrPost)
     $html .= " <li data-dateCreation=" .  $post->creationDate . ">";
     $html .= "<div class=\" uk-card uk-card-default  uk-card-body uk-margin-left\">";
     if (count($post->media) !== 0) {
-      $html .= "<div class=\"uk-text-center \" tabindex=\"-1\" uk-slideshow=\"ratio: 7:3;\">";
+      $html .= "<div class=\"uk-position-relative uk-light uk-visible-toggle uk-text-center \" tabindex=\"-1\" uk-slideshow=\"ratio: 7:3;\">";
       $html .= "<ul class=\"uk-slideshow-items\" tabindex=\"-1\">"; //uk-height-viewport=\"offset-top: true; \"
 
       foreach ($post->media as $monMedia) {
@@ -206,7 +173,7 @@ function getHtmlForAllPost($arrPost)
             break;
           case "audio":
             $html .= "<li>";
-            $html .= "<audio src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " ></audio>";
+            $html .= "<audio controls src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " ></audio>";
             $html .= "</li>";
             break;
         }

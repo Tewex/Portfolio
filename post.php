@@ -21,7 +21,8 @@ if ($btnPost) {
 
     for ($i = 0; $i < count($_FILES['fileToUpload']['name']); $i++) {
         if ($_FILES['fileToUpload']['name'][$i] != "" && $_FILES['fileToUpload']['error'][$i] == 0) {
-            $arrTrueMedia = [$i];
+            $arrTrueMedia[] = [$i]; //ne fonctionne pas
+            //$arrTrueMedia = [$i]; //Fonctionne seulement pour un media
         } else {
             if ($_FILES['fileToUpload']['error'][$i] == 1) {
                 $uploadOk = false;
@@ -56,24 +57,24 @@ if ($btnPost) {
     if ($uploadOk) {
 
         foreach ($arrTrueMedia as $i) {
-            $name = basename($_FILES["fileToUpload"]["name"][$i]);
-            $tmpName = $_FILES["fileToUpload"]["tmp_name"][$i];
+            $name = basename($_FILES["fileToUpload"]["name"][$i[0]]);
+            $tmpName = $_FILES["fileToUpload"]["tmp_name"][$i[0]];
             $newName = changeMediaName();
-            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i]);
+            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i[0]]);
 
-            $sizeFile = $_FILES["fileToUpload"]["size"][$i];
+            $sizeFile = $_FILES["fileToUpload"]["size"][$i[0]];
 
-            //$type = getFormatMedia($_FILES["fileToUpload"]["type"][$i]);
-            $content_type = mime_content_type($_FILES["fileToUpload"]["tmp_name"][$i]);
+            $type = getFormatMedia($_FILES["fileToUpload"]["type"][$i[0]]);
+            $content_type = mime_content_type($_FILES["fileToUpload"]["tmp_name"][$i[0]]);
             $fileExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-            $target_file = $target_dir . $newNam6e . "." . $fileExtension;
+            $target_file = $target_dir . $newName . "." . $fileExtension;
 
-            if (checkMediaSize($sizeFile, $SIZEMAX, $i)) {
+           /* if (checkMediaSize($sizeFile, $SIZEMAX, $i)) {
                 $uploadOk = false;
                 $showMessageError = true;
                 $arrMessagesError[] = "La taille de votre media est trop élévé";
-            }
+            }/*
             /*
             if (checkMediaFormat($fileExtension)) {
                 $uploadOk = false;
@@ -98,7 +99,7 @@ if ($btnPost) {
                 $arrMessagesError[] = "Votre media est faux";
             }*/
             if ($uploadOk) {
-                if (moveMediaToFolder($target_file, $i)) {
+                if (moveMediaToFolder($target_file, $i[0])) {
                     $arrMedias[] = new cMedia(-1, $newName . "." . $fileExtension, $type, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
                     $arrMessagesCool[] = "Le'media " . $name . " a été Upload";
                     $showMessageCool = true;
@@ -194,17 +195,17 @@ if ($btnPost) {
                 <div class="uk-margin" uk-margin>
 
                     <div uk-form-custom>
-                        <input type="file" name="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
+                        <input type="file" name="fileToUpload[]" multiple accept="image/*">
                         <i class="far fa-images"></i>
                     </div>
                     <div uk-form-custom>
                         <input type="file" name="fileToUpload[]" multiple accept="video/*">
                         <span class="uk-margin-small-right" uk-icon="video-camera"></span>
                     </div>
-                    <!--<div uk-form-custom>
-                        <input type="file" name="fileToUpload" id="fileToUpload[]" multiple accept="image/x-png, image/gif, image/jpeg">
+                    <div uk-form-custom>
+                        <input type="file" name="fileToUpload[]"  multiple accept="audio/*">
                         <i class="fas fa-microphone"></i>
-                    </div>-->
+                    </div>
                     <button name="btnPost" value="Envoyez" class="uk-button uk-button-default">Publier</button>
                 </div>
             </fieldset>

@@ -10,6 +10,7 @@ if ($btnDelete) {
   if(deletePostById($post))
   {
       deletefilesServer($post->media);
+      header('Location: index.php');
   }
 }
 
@@ -43,19 +44,19 @@ if ($btnDelete) {
         foreach ($post->media as $monMedia) {
             switch ($monMedia->typeMedia) {
                 case "image":
-                    echo $html .= "<li>";
-                    echo $html .= "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . "  uk-cover uk-img alt=\"\">";
-                    echo $html .= "</li>";
+                    echo "<li>";
+                    echo "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " uk-img alt=\"\">";
+                    echo "</li>";
                     break;
                 case "video":
-                    echo $html .= "<li>";
-                    echo $html .= "<video src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " autoplay loop playsinline uk-cover></video>";
-                    echo $html .= "</li>";
+                    echo "<li>";
+                    echo "<video src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " autoplay loop playsinline ></video>";
+                    echo "</li>";
                     break;
                 case "audio":
-                    echo $html .= "<li>";
-                    echo $html .= "<audio src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " ></audio>";
-                    echo $html .= "</li>";
+                    echo "<li>";
+                    echo "<audio controls src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . " ></audio>";
+                    echo "</li>";
                     break;
             }
         }
