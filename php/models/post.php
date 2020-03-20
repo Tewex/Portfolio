@@ -1,4 +1,11 @@
 <?php
+/**
+ * File: photos.php
+ * Author: Théo Hurlimann
+ * Date: 17.12.2019
+ * Description: manage Post.
+ * Version: 1.0
+ */
 require_once 'databaseConnection.php';
 //require_once "../../inc.all.php";
 function addPost($post)
@@ -53,7 +60,8 @@ function getAllPost()
   $sql = "SELECT p.idPost,p.commentaire,p.creationDate as createDatePost,p.modificationDate as modifDatePost,m.idMedia,m.nomFichierMedia,m.typeMedia,m.creationDate,m.modificationDate,m.idPost_Media
   FROM post as p
   LEFT OUTER JOIN media as m
-  ON p.idPost = m.idPost_media";
+  ON p.idPost = m.idPost_media
+  ORDER BY p.creationDate DESC";
 
   $query = UserDbConnection()->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
   if ($query->execute()) {
@@ -94,8 +102,7 @@ function getAllPost()
 
 function deletePostById($post)
 {
-  $i = 14;
-  $sql="DELETE FROM `portfolio`.`post` WHERE idPost = :idPost";
+  $sql = "DELETE FROM `portfolio`.`post` WHERE idPost = :idPost";
   try {
     $dbh = UserDbConnection();
     $dbh->beginTransaction();
@@ -105,9 +112,8 @@ function deletePostById($post)
 
     if ($post->media != "") {
       foreach ($post->media as $media) {
-        deleteMediaById($media->idMedia,$dbh);
+        deleteMediaById($media->idMedia);
       }
-      
     }
     $stmt->execute();
     $dbh->commit();
@@ -118,23 +124,6 @@ function deletePostById($post)
   }
 }
 
-/*SELECT post.idPost, post.commentaire, post.creationDate, post.modificationDate, GROUP_CONCAT(media.typeMedia) 
-as mediaTypes, GROUP_CONCAT(media.nomFichierMedia) as mediaNames FROM post
-            LEFT JOIN media ON media.idPost_media = post.idPost
-            GROUP BY post.idPost
-            ORDER BY post.creationDate DESC*/
-
-function  orderByDate($a, $b)
-{
-  //retourner 0 en cas d'égalité
-  if ($a->creationDate == $b->creationDate) {
-    return 0;
-  } else if ($a->creationDate < $b->creationDate) { //retourner -1 en cas d’infériorité
-    return 1;
-  } else { //retourner 1 en cas de supériorité
-    return -1;
-  }
-}
 
 function getHtmlForAllPost($arrPost)
 {
@@ -143,27 +132,27 @@ function getHtmlForAllPost($arrPost)
   $html .= "<div class=\"uk-width-expand\">";
   $html .= "</div>";
   $html .= "<div class=\"uk-width-auto uk-text-nowrap\">";
-  $html .= "<span uk-filter-control=\"sort: data-dateCreation\"><a class=\"uk-icon-link\" href=\"#\" uk-icon=\"icon: arrow-down\"></a></span>";
-  $html .= "<span class=\"uk-active\" uk-filter-control=\"sort: data-dateCreation; order: desc\"><a class=\"uk-icon-link\" href=\"#\" uk-icon=\"icon: arrow-up\"></a></span>";
+  $html .= "<span uk-filter-control=\"sort: datatime-date\"><a class=\"uk-icon-link\" href=\"#\" uk-icon=\"icon: arrow-down\"></a></span>";
+  $html .= "<span class=\"uk-active\" uk-filter-control=\"sort: datatime-date; order: desc\"><a class=\"uk-icon-link\" href=\"#\" uk-icon=\"icon: arrow-up\"></a></span>";
   $html .= "</div>";
   $html .= "</div>";
-  $html .= "<ul class=\"js-filter uk-child-width-1-1 uk-child-width-1-3@m uk-position-relative uk-visible-toggle\" uk-grid=\"masonry: true\">";
+  $html .= "<ul class=\"js-filter uk-child-width-1-1 uk-child-width-1-2@m uk-child-width-1-3@l uk-position-relative uk-visible-toggle\" uk-grid=\"masonry: true\">";
 
 
 
   foreach ($arrPost as $post) {
-    $html .= " <li data-dateCreation=" .  $post->creationDate . ">";
+    $html .= " <li datatime-date=" .  $post->creationDate . ">";
     $html .= "<div class=\" uk-card uk-card-default  uk-card-body uk-margin-left\">";
     if (count($post->media) !== 0) {
-      $html .= "<div class=\"uk-position-relative uk-light uk-visible-toggle uk-text-center \" tabindex=\"-1\" uk-slideshow=\"ratio: 7:3;\">";
-      $html .= "<ul class=\"uk-slideshow-items\" tabindex=\"-1\">"; //uk-height-viewport=\"offset-top: true; \"
+      $html .= "<div class=\" uk-position-relative uk-light uk-visible-toggle uk-text-center \"  tabindex=\"-1\" uk-slideshow=\"ratio: 7:3;\">";
+      $html .= "<ul class=\" uk-slideshow-items\" tabindex=\"-1\" >"; //uk-height-viewport=\"offset-top: true; \"
 
       foreach ($post->media as $monMedia) {
 
         switch ($monMedia->typeMedia) {
           case "image":
             $html .= "<li>";
-            $html .= "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . "  uk-cover uk-img alt=\"\">";
+            $html .= "<img class=\"\" src=" . CHEMINMEDIA . $monMedia->nomFichierMedia . "  uk-cover uk-img alt=\"\" >";
             $html .= "</li>";
             break;
           case "video":
@@ -185,7 +174,14 @@ function getHtmlForAllPost($arrPost)
     }
     $html .= "<hr class=\"uk-divider-icon\">";
     $html .= "<article class=\"uk-article\">";
-    $html .= "<p class=\"uk-text-left uk-text-meta\">" . $post->creationDate . "</p>";
+    $html .= "<div class=\"uk-panel\">";
+    $html .= "<p class=\" uk-text-meta\">" . $post->creationDate . "</p>";
+    if ($post->creationDate != $post->modificationDate) {
+      $html .= "<p class=\" uk-text-meta\">Modifié le " . $post->modificationDate . "</p>";
+    }
+    
+    $html .= "</div>";
+
     $html .= "<p class=\"uk-text-lead\">" .  $post->commentaire . "</p>";
     $html .= "<a href = editPost.php?id=" . $post->idPost . "><i class=\"fas fa-pen\"></i>&nbsp;&nbsp;</a>";
     $html .= "<a href = deletePost.php?id=" . $post->idPost . "><i class=\"fas fa-trash-alt\"></i></a>";
@@ -198,4 +194,20 @@ function getHtmlForAllPost($arrPost)
   $html .= "</div>";
   $html .= "</div>";
   return $html;
+}
+
+function updatePostById($post)
+{
+  $dbh = UserDbConnection();
+  $sql = "UPDATE `portfolio`.`post` SET `commentaire` = :commentaire, `modificationDate` = :modificationDate WHERE (`idPost` = :idPost);";
+  try {
+    $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
+    $stmt->bindParam(":modificationDate", $post->modificationDate, PDO::PARAM_STR);
+    $stmt->bindParam(":commentaire", $post->commentaire, PDO::PARAM_STR);
+    $stmt->bindParam(":idPost", $post->idPost, PDO::PARAM_STR);
+    $stmt->execute();
+    return true;
+  } catch (Exception $e) {
+    return false;
+  }
 }

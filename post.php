@@ -1,28 +1,28 @@
 <?php
 require_once("inc.all.php");
 
-$SIZEMAX = 3000000;
+            
 $arrTrueMedia = [];            
-
-$showMessageError = false;
-$showMessageCool = false;
 $arrMedias = [];
 $arrMessagesCool = [];
 $arrMessagesError = [];
+
+$showMessageError = false;
+$showMessageCool = false;
+$postOnlyComment = false;
+
+$commentaireOk = true;
+$uploadOk = true;
+
 $btnPost = filter_input(INPUT_POST, "btnPost");
 if ($btnPost) {
-    $postOnlyComment = false;
-    $commentaireOk = true;
-    $target_dir = "./img/photoUploads/";
-    $uploadOk = true;
-    $nbFiles = 0;
-    $fileError = $_FILES['fileToUpload']['error'][0];
+    
     $commentaire = filter_input(INPUT_POST, "tbxdescription", FILTER_SANITIZE_STRING);
 
+    //Je check combien d'image on été upload. Je gere l'erreur en cas de problème de poid de media ou poid total
     for ($i = 0; $i < count($_FILES['fileToUpload']['name']); $i++) {
         if ($_FILES['fileToUpload']['name'][$i] != "" && $_FILES['fileToUpload']['error'][$i] == 0) {
-            $arrTrueMedia[] = [$i]; //ne fonctionne pas
-            //$arrTrueMedia = [$i]; //Fonctionne seulement pour un media
+            $arrTrueMedia[] = [$i];
         } else {
             if ($_FILES['fileToUpload']['error'][$i] == 1) {
                 $uploadOk = false;
@@ -40,68 +40,47 @@ if ($btnPost) {
         }
     }
 
-    if ($commentaire == "") {
-        $uploadOk = false;
-        $commentaireOk = false;
-        $showMessageError = true;
-        $arrMessagesError[] = "Veuillez ajouter un message";
-    }
 
-    if (count($arrTrueMedia) == 0) {
+    if (count($arrTrueMedia) == 0 && $commentaire != "") {
         $uploadOk = false;
         $postOnlyComment = true;
-
-        //$arrMessagesError[] = "Veuillez ajouter un message";
     }
 
     if ($uploadOk) {
 
         foreach ($arrTrueMedia as $i) {
-            $name = basename($_FILES["fileToUpload"]["name"][$i[0]]);
+            //Je prends les informations utiles de $_FILES
+            $name = $_FILES["fileToUpload"]["name"][$i[0]];
             $tmpName = $_FILES["fileToUpload"]["tmp_name"][$i[0]];
-            $newName = changeMediaName();
-            $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"][$i[0]]);
-
+            $target_file = $_FILES["fileToUpload"]["name"][$i[0]];
             $sizeFile = $_FILES["fileToUpload"]["size"][$i[0]];
 
-            $type = getFormatMedia($_FILES["fileToUpload"]["type"][$i[0]]);
-            $content_type = mime_content_type($_FILES["fileToUpload"]["tmp_name"][$i[0]]);
-            $fileExtension = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-            $target_file = $target_dir . $newName . "." . $fileExtension;
+            //J'identifie le type du media ainsi que sa réelle extension
+            $type_extension = mime_content_type($tmpName);
+            $type = getFormatMedia($type_extension);
+            $fileExtension = getRealExtensionMedia($type_extension);
 
-           /* if (checkMediaSize($sizeFile, $SIZEMAX, $i)) {
+
+            $newName = changeMediaName();
+            $target_file = CHEMINMEDIA . $newName . "." . $fileExtension;
+
+            if (checkMediaSize($sizeFile, SIZEMEDIAMAX, $i)) {
                 $uploadOk = false;
                 $showMessageError = true;
                 $arrMessagesError[] = "La taille de votre media est trop élévé";
-            }/*
-            /*
-            if (checkMediaFormat($fileExtension)) {
+            }
+
+            if ($type == null) {
                 $uploadOk = false;
                 $showMessageError = true;
-                $arrMessagesError[] = "Le format de votre media est incompatible";
-            }*/
-            //VOIR TAILLE PAS OUF <!DOCTYPE html>
-            //
-            //
-            //
-            //
-            //
-            //
-            //
-            //
-            //
-            //
-            //
-            /*if (checkMediaFake($tmpName, $content_type)) {
-                $uploadOk = false;
-                $showMessageError = true;
-                $arrMessagesError[] = "Votre media est faux";
-            }*/
+                $arrMessagesError[] = "Votre media n'est pas une image/video/audio.";
+            }
+
             if ($uploadOk) {
                 if (moveMediaToFolder($target_file, $i[0])) {
                     $arrMedias[] = new cMedia(-1, $newName . "." . $fileExtension, $type, date("Y-m-d H:i:s"), date("Y-m-d H:i:s"));
-                    $arrMessagesCool[] = "Le'media " . $name . " a été Upload";
+                    $arrMessagesCool[] = "Le media " . $name . " a été Upload";
                     $showMessageCool = true;
                     
                 } else {
@@ -117,6 +96,7 @@ if ($btnPost) {
                 $showMessageCool = true;
                 $arrMessagesCool[] = "Votre post a été ajouté";
             } else {
+                deletefilesServer($arrMedias);
                 $showMessageError = true;
                 $arrMessagesError[] = "Une erreur est survenu lors de l'ajout de votre post";
             }
@@ -127,9 +107,6 @@ if ($btnPost) {
         if (addPost($monPost)) {
             $showMessageCool = true;
             $arrMessagesCool[] = "Votre post a été ajouté";
-        }
-        else{
-            deletefilesServer($arrMedias);
         }
     }
 }

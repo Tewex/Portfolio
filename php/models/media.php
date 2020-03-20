@@ -16,41 +16,36 @@ require_once 'databaseConnection.php';
  * @param [Media] $u L'objet photo
  * @return bool true si ok, false si problème
  */
-function Addmedia($media,$idPost)
+function Addmedia($media, $idPost)
 {
-    //Exemple go https://www.php.net/manual/fr/pdo.commit.php
     $database = UserDbConnection();
-    $req = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost_media) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost_media);");
-    $req->bindParam(":nomFichierMedia",$media->nomFichierMedia, PDO::PARAM_STR);
-    $req->bindParam(":typeMedia",$media->typeMedia, PDO::PARAM_STR);
-    $req->bindParam(":creationDate",$media->creationDate, PDO::PARAM_STR);
-    $req->bindParam(":modificationDate",$media->modificationDate, PDO::PARAM_STR);
-    $req->bindParam(":idPost_media",$idPost, PDO::PARAM_STR);
-    if ($req->execute()) {
+
+    try {
+        $req = $database->prepare("INSERT INTO media(nomFichierMedia, typeMedia, creationDate, modificationDate, idPost_media) VALUES (:nomFichierMedia, :typeMedia, :creationDate,:modificationDate, :idPost_media);");
+        $req->bindParam(":nomFichierMedia", $media->nomFichierMedia, PDO::PARAM_STR);
+        $req->bindParam(":typeMedia", $media->typeMedia, PDO::PARAM_STR);
+        $req->bindParam(":creationDate", $media->creationDate, PDO::PARAM_STR);
+        $req->bindParam(":modificationDate", $media->modificationDate, PDO::PARAM_STR);
+        $req->bindParam(":idPost_media", $idPost, PDO::PARAM_STR);
+        $req->execute();
         return true;
-    } else {
+    } catch (Exception $e) {
         return false;
     }
 }
 
-function deleteMediaById($id,$dbh = "")
+function deleteMediaById($id)
 {
-
-    if ($dbh == "") {
-        $dbh = UserDbConnection();
-    }
     $sql = "DELETE FROM portfolio.media WHERE idMedia = :id";
     try {
+        $dbh = UserDbConnection();
         $stmt = $dbh->prepare($sql, array(PDO::ATTR_CURSOR, PDO::CURSOR_SCROLL));
-    
         $stmt->bindParam(":id", $id, PDO::PARAM_STR);
-    
-      
         $stmt->execute();
         return true;
-      } catch (Exception $e) {
+    } catch (Exception $e) {
         return false;
-      }
+    }
 }
 
 /**
@@ -84,7 +79,7 @@ function getMediaByIdPost($id)
  * 
  * @return Bool Retourne True si le media a été validé sinon false
  */
-function checkMediaSize($size, $max,$i)
+function checkMediaSize($size, $max, $i)
 {
     // Check size of one image
     if ($size <= $max && $size != 0) {
@@ -101,41 +96,31 @@ function checkMediaSize($size, $max,$i)
 function changeMediaName()
 {
 
-    return uniqid() ."-". date('YmdHis') ;
+    return uniqid() . "-" . date('YmdHis');
     //return $i; 
 }
-/**
- * 
- * @return Bool Retourne True si le nom du media a été validé sinon false
- */
-function checkMediaFormat($imageFileType)
-{
-    $extensions = array('.png', '.gif', '.jpg', '.jpeg'); 
-    if(!in_array($imageFileType, $extensions)) 
-    {
-        
-        return false;
-    }
-    /*
-    // Allow certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
 
-        return false;
-    }*/
-    return true;
-}
 
 function getFormatMedia($type)
 {
-    return substr($type, 0, strpos($type, "/"));
-    
+    $arrType = explode("/", $type);
+
+    if ($arrType[0] != "video" && $arrType[0] != "image" && $arrType[0] != "audio") {
+        return null;
+    }
+    return $arrType[0];
+}
+function getRealExtensionMedia($type)
+{
+    $arrType = explode("/", $type);
+    return $arrType[1];
 }
 
 /**
  * 
  * @return Bool Retourne True si le nom du media a été validé sinon false
  */
-function moveMediaToFolder($target_file,$i)
+function moveMediaToFolder($target_file, $i)
 {
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"][$i], $target_file)) {
         return true;
@@ -146,7 +131,7 @@ function moveMediaToFolder($target_file,$i)
 
 function checkMediaFake($i)
 {
-    
+
     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"][$i]);
     if ($check !== false) {
         return false;
@@ -163,25 +148,31 @@ function getMediaType($monMedia)
     $finfo_open = "." . CHEMINMEDIA . $monMedia->nomFichierMedia;
     //$finfo = finfo_open(CHEMINPHOTO . $monMedia->nomFichierMedia); // Retourne le type mime à l'extension mimetype
     $fileType = mime_content_type($finfo_open);
-   
+
     //$fileType = FILEINFO_MIME_TYPE(CHEMINPHOTO . $monMedia->nomFichierMedia);
-    
-    $extensionsImage = array('.png', '.gif', '.jpg', '.jpeg'); 
-    if(strpos($fileType, 'image/')=== true) 
-    {
+
+    $extensionsImage = array('.png', '.gif', '.jpg', '.jpeg');
+    if (strpos($fileType, 'image/') === true) {
         return "image";
-    }
-    elseif (strpos($fileType, 'video/')=== true) {
-        return"video";
-    }
-    elseif (strpos($fileType, 'audio/')=== true) {
-        return"audio";
+    } elseif (strpos($fileType, 'video/') === true) {
+        return "video";
+    } elseif (strpos($fileType, 'audio/') === true) {
+        return "audio";
     }
 }
 
 function deletefilesServer($arrMedia)
 {
+
     foreach ($arrMedia as $media) {
-        unlink(CHEMINMEDIA . $media->nomFichierMedia);
+        deleteFileServerByName($media->nomFichierMedia);
+    }
+}
+function deleteFileServerByName($name)
+{
+    if (unlink(CHEMINMEDIA . $name)) {
+        return true;
+    } else {
+        return false;
     }
 }
